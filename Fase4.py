@@ -10,8 +10,9 @@ import re
 import logging
 from abc import ABC, abstractmethod
 
+# =============================================================================
 # 1. SISTEMA DE LOGS (Sin bases de datos, trazabilidad en archivo)
-
+# =============================================================================
 def configurar_logger():
     nombre_archivo = "logs.txt"
     logger = logging.getLogger("SoftwareFJ")
@@ -33,7 +34,10 @@ def configurar_logger():
 
 log_sistema = configurar_logger()
 
+
+# =============================================================================
 # 2. JERARQUÍA DE EXCEPCIONES PERSONALIZADAS
+# =============================================================================
 class SoftwareFJException(Exception):
     """Excepción base del sistema Software FJ."""
     def __init__(self, mensaje: str, codigo_error: str = "ERR_GEN"):
@@ -68,7 +72,10 @@ class OperacionNoPermitidaException(SoftwareFJException):
     def __init__(self, mensaje: str):
         super().__init__(mensaje, codigo_error="ERR_OP_04")
 
+
+# =============================================================================
 # 3. ENTIDADES BASE Y CLIENTE (Encapsulamiento y Validaciones)
+# =============================================================================
 class EntidadSistema(ABC):
     """Clase abstracta base para entidades del sistema."""
     def __init__(self, id_entidad: str):
@@ -130,8 +137,10 @@ class Cliente(EntidadSistema):
     def mostrar_detalle(self) -> str:
         return f"[Cliente] ID: {self._id_entidad} | Nombre: {self._nombre} | Correo: {self._correo} | Tel: {self._telefono}"
 
-# 4. SERVICIOS ESPECIALIZADOS (Abstracción, Herencia y Polimorfismo)
 
+# =============================================================================
+# 4. SERVICIOS ESPECIALIZADOS (Abstracción, Herencia y Polimorfismo)
+# =============================================================================
 class Servicio(EntidadSistema):
     """Clase abstracta base para servicios de Software FJ."""
     def __init__(self, id_servicio: str, nombre: str, tarifa_base: float):
@@ -152,6 +161,7 @@ class Servicio(EntidadSistema):
     @abstractmethod
     def validar_disponibilidad(self, requerimiento: int) -> bool:
         pass
+
 
 class ReservaSala(Servicio):
     """Servicio: Reserva de salas de conferencias o juntas."""
@@ -221,7 +231,10 @@ class AsesoriaEspecializada(Servicio):
     def mostrar_detalle(self) -> str:
         return f"[Asesoría] {self._nombre} | Consultor: {self.consultor} | Tarifa/h: ${self._tarifa_base:,.2f}"
 
+
+# =============================================================================
 # 5. RESERVA Y SOBRECARGA DE MÉTODOS
+# =============================================================================
 class Reserva:
     """Clase Reserva con control de estados y sobrecarga de costos."""
     ESTADO_PENDIENTE = "PENDIENTE"
@@ -267,8 +280,10 @@ class Reserva:
     def mostrar_resumen(self) -> str:
         return f"Reserva [{self.id_reserva}] | Estado: {self.estado} | Cliente: {self.cliente.nombre} | Servicio: {self.servicio.nombre}"
 
-# 6. SIMULACIÓN DE AL MENOS 10 OPERACIONES (Manejo Robusto de Excepciones)
 
+# =============================================================================
+# 6. SIMULACIÓN DE AL MENOS 10 OPERACIONES (Manejo Robusto de Excepciones)
+# =============================================================================
 def main():
     print("=" * 70)
     print("      SOFTWARE FJ - SISTEMA DE CLIENTES, SERVICIOS Y RESERVAS")
@@ -282,7 +297,7 @@ def main():
     # Op 1: Cliente Válido
     print("\n[Operación 1] Registro de cliente válido...")
     try:
-        c1 = Cliente("CLI-001", "Jonathan Másmela", "jonathan@unad.edu.co", "3154889900")
+        c1 = Cliente("CLI-001", "Cliente Ejemplo", "cliente@empresa.com", "3154889900")
         clientes.append(c1)
     except ErrorValidacionCliente as e:
         log_sistema.error(f"Fallo Op 1: {e}")
