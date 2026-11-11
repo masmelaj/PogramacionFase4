@@ -36,7 +36,7 @@ log_sistema = configurar_logger()
 
 
 # =============================================================================
-# 3. ENTIDADES BASE Y CLIENTE (Encapsulamiento y Validaciones)
+# ENTIDADES BASE Y CLIENTE (Encapsulamiento y Validaciones)
 # =============================================================================
 class EntidadSistema(ABC):
     """Clase abstracta base para entidades del sistema."""
