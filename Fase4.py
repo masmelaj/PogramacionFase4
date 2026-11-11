@@ -33,3 +33,12 @@ def configurar_logger():
     return logger
 
 log_sistema = configurar_logger()
+
+
+# =============================================================================
+# 3. ENTIDADES BASE Y CLIENTE (Encapsulamiento y Validaciones)
+# =============================================================================
+class EntidadSistema(ABC):
+    """Clase abstracta base para entidades del sistema."""
+    def __init__(self, id_entidad: str):
+        self._id_entidad = id_entidad
