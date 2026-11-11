@@ -51,3 +51,16 @@ class EntidadSistema(ABC):
     def mostrar_detalle(self) -> str:
         pass
 
+class Cliente(EntidadSistema):
+    """Clase Cliente con atributos encapsulados y validación estricta."""
+    def __init__(self, id_cliente: str, nombre: str, correo: str, telefono: str):
+        super().__init__(id_cliente)
+        self._nombre = None
+        self._correo = None
+        self._telefono = None
+
+        self.nombre = nombre
+        self.correo = correo
+        self.telefono = telefono
+        log_sistema.info(f"Cliente registrado: ID={self._id_entidad}, Nombre={self._nombre}")
+
