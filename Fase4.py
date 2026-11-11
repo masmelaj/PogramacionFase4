@@ -64,3 +64,37 @@ class Cliente(EntidadSistema):
         self.telefono = telefono
         log_sistema.info(f"Cliente registrado: ID={self._id_entidad}, Nombre={self._nombre}")
 
+    @property
+    def nombre(self) -> str:
+        return self._nombre
+
+    @nombre.setter
+    def nombre(self, valor: str):
+        if not valor or len(valor.strip()) < 3:
+            raise ErrorValidacionCliente("El nombre del cliente debe tener mínimo 3 caracteres.")
+        self._nombre = valor.strip()
+
+    @property
+    def correo(self) -> str:
+        return self._correo
+
+    @correo.setter
+    def correo(self, valor: str):
+        patron = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not valor or not re.match(patron, valor.strip()):
+            raise ErrorValidacionCliente(f"Formato de correo inválido: '{valor}'.")
+        self._correo = valor.strip()
+
+    @property
+    def telefono(self) -> str:
+        return self._telefono
+
+    @telefono.setter
+    def telefono(self, valor: str):
+        if not valor or not valor.strip().isdigit() or len(valor.strip()) < 7:
+            raise ErrorValidacionCliente(f"Teléfono inválido: '{valor}'. Debe contener solo dígitos (mínimo 7).")
+        self._telefono = valor.strip()
+
+    def mostrar_detalle(self) -> str:
+        return f"[Cliente] ID: {self._id_entidad} | Nombre: {self._nombre} | Correo: {self._correo} | Tel: {self._telefono}"
+
