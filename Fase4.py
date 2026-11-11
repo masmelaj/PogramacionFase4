@@ -42,3 +42,12 @@ class EntidadSistema(ABC):
     """Clase abstracta base para entidades del sistema."""
     def __init__(self, id_entidad: str):
         self._id_entidad = id_entidad
+
+    @property
+    def id_entidad(self) -> str:
+        return self._id_entidad
+
+    @abstractmethod
+    def mostrar_detalle(self) -> str:
+        pass
+
