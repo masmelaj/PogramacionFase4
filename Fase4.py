@@ -1,9 +1,7 @@
-"""
 UNIVERSIDAD NACIONAL ABIERTA Y A DISTANCIA - UNAD
 Curso: Programación (Código: 213023)
 Fase 4: Prácticas Simuladas
 Ejercicio 1: Sistema Integral de Gestión de Clientes, Servicios y Reservas (Software FJ)
-"""
 
 import os
 import re
@@ -34,10 +32,8 @@ def configurar_logger():
 
 log_sistema = configurar_logger()
 
-
-# =============================================================================
 # ENTIDADES BASE Y CLIENTE (Encapsulamiento y Validaciones)
-# =============================================================================
+
 class EntidadSistema(ABC):
     """Clase abstracta base para entidades del sistema."""
     def __init__(self, id_entidad: str):
