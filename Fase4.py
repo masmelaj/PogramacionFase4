@@ -251,3 +251,110 @@ class AsesoriaEspecializada(Servicio):
         return (f"[Asesoría] {self.nombre} | Consultor: {self.consultor} | "
                 f"Tarifa/h: ${self.tarifa_base:,.2f}")
 
+# 5. RESERVA Y CÁLCULO DE COSTOS CON PARÁMETROS OPCIONALES
+
+class Reserva:
+    ESTADO_PENDIENTE = "PENDIENTE"
+    ESTADO_CONFIRMADA = "CONFIRMADA"
+    ESTADO_CANCELADA = "CANCELADA"
+
+    def __init__(self, id_reserva, cliente, servicio, unidades, parametro_disp):
+        if not isinstance(cliente, Cliente) or not isinstance(servicio, Servicio):
+            raise ReservaInvalidaException("Cliente o servicio no válido.")
+        if float(unidades) <= 0 or int(parametro_disp) <= 0:
+            raise ReservaInvalidaException("Las unidades y el requerimiento deben ser positivos.")
+
+        self.id_reserva = str(id_reserva).strip()
+        self.cliente = cliente
+        self.servicio = servicio
+        self.unidades = float(unidades)
+        self.parametro_disp = int(parametro_disp)
+        self.estado = self.ESTADO_PENDIENTE
+        self.costo_total = 0.0
+        log_sistema.info("Reserva creada: %s para %s",
+                         self.id_reserva, self.cliente.nombre)
+
+    def confirmar(self):
+        if self.estado != self.ESTADO_PENDIENTE:
+            raise OperacionNoPermitidaException(
+                f"No se puede confirmar una reserva en estado {self.estado}."
+            )
+        self.servicio.validar_disponibilidad(self.parametro_disp)
+        self.estado = self.ESTADO_CONFIRMADA
+        log_sistema.info("Reserva %s confirmada.", self.id_reserva)
+
+    def cancelar(self):
+        if self.estado == self.ESTADO_CANCELADA:
+            raise OperacionNoPermitidaException("La reserva ya está cancelada.")
+        self.estado = self.ESTADO_CANCELADA
+        log_sistema.warning("Reserva %s cancelada.", self.id_reserva)
+
+    def calcular_costo_total(self, porcentaje_descuento=0.0,
+                             impuesto_iva=0.19, es_corporativo=False):
+        if self.estado != self.ESTADO_CONFIRMADA:
+            raise OperacionNoPermitidaException(
+                "La reserva debe estar confirmada para calcular el costo."
+            )
+        if not 0 <= float(porcentaje_descuento) <= 100:
+            raise ValueError("El descuento debe estar entre 0 y 100.")
+        if not 0 <= float(impuesto_iva) <= 1:
+            raise ValueError("El IVA debe expresarse entre 0 y 1 (ejemplo: 0.19).")
+
+        costo_base = self.servicio.calcular_costo(self.unidades)
+        descuento = float(porcentaje_descuento) + (5.0 if es_corporativo else 0.0)
+        if descuento > 100:
+            raise ValueError("El descuento total no puede superar el 100%.")
+        subtotal = costo_base * (1 - descuento / 100)
+        self.costo_total = round(subtotal * (1 + float(impuesto_iva)), 2)
+        log_sistema.info("Costo calculado para reserva %s: %.2f",
+                         self.id_reserva, self.costo_total)
+        return self.costo_total
+
+    def mostrar_resumen(self):
+        return (f"Reserva [{self.id_reserva}] | {self.estado} | "
+                f"Cliente: {self.cliente.nombre} | Servicio: {self.servicio.nombre}")
+
+# 6. SISTEMA DE GESTIÓN EN MEMORIA
+
+class SistemaSoftwareFJ:
+    def __init__(self):
+        self.clientes = []
+        self.servicios = []
+        self.reservas = []
+
+    def registrar_cliente(self, cliente):
+        if any(c.id_entidad == cliente.id_entidad for c in self.clientes):
+            raise ErrorValidacionCliente("Ya existe un cliente con esa identificación.")
+        if any(c.correo.lower() == cliente.correo.lower() for c in self.clientes):
+            raise ErrorValidacionCliente("Ya existe un cliente con ese correo.")
+        self.clientes.append(cliente)
+
+    def registrar_servicio(self, servicio):
+        if any(s.id_entidad == servicio.id_entidad for s in self.servicios):
+            raise ValueError("Ya existe un servicio con ese código.")
+        self.servicios.append(servicio)
+
+    def buscar_cliente(self, identificacion):
+        for cliente in self.clientes:
+            if cliente.id_entidad == identificacion:
+                return cliente
+        raise ErrorValidacionCliente("No se encontró el cliente seleccionado.")
+
+    def buscar_servicio(self, codigo):
+        for servicio in self.servicios:
+            if servicio.id_entidad == codigo:
+                return servicio
+        raise ValueError("No se encontró el servicio seleccionado.")
+
+    def crear_reserva(self, codigo, cliente, servicio, unidades, requerimiento):
+        if any(r.id_reserva == codigo for r in self.reservas):
+            raise ReservaInvalidaException("Ya existe una reserva con ese código.")
+        reserva = Reserva(codigo, cliente, servicio, unidades, requerimiento)
+        self.reservas.append(reserva)
+        return reserva
+
+    def buscar_reserva(self, codigo):
+        for reserva in self.reservas:
+            if reserva.id_reserva == codigo:
+                return reserva
+        raise ReservaInvalidaException("No se encontró la reserva seleccionada.")
